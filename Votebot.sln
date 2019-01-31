@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.329
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Votebot", "Votebot\Votebot.csproj", "{7CFA1DCD-8088-4575-85C2-263675D952F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7CFA1DCD-8088-4575-85C2-263675D952F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CFA1DCD-8088-4575-85C2-263675D952F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CFA1DCD-8088-4575-85C2-263675D952F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CFA1DCD-8088-4575-85C2-263675D952F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8110C3DD-4D74-4F8D-AA64-92DD87E664DD}
+	EndGlobalSection
+EndGlobal
