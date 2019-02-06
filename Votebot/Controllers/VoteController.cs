@@ -40,6 +40,11 @@ namespace Votebot.Controllers
             return options;
         }
 
+        public bool RemoveOption(string option)
+        {
+            return options.Remove(option);
+        }
+
         public async Task CloseVote(SocketCommandContext context)
         {
             CurrentVote.IsClosed = true;
@@ -49,7 +54,9 @@ namespace Votebot.Controllers
                 await message.UpdateAsync();
             }
 
-            RestUserMessage[] winnerMessage = CurrentVote.Options.MaxBy(o => o.Reactions.Sum(r => r.Value.ReactionCount)).ToArray();
+            RestUserMessage[] winnerMessage = CurrentVote.Options.
+                MaxBy(o => o.Reactions.Sum(r => r.Value.ReactionCount))
+                .ToArray();
 
             if (winnerMessage.Length != 1)
             {
