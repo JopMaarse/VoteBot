@@ -4,25 +4,28 @@ using Discord.Commands;
 using Discord.Rest;
 using Votebot.Controllers;
 using Votebot.Models;
+using Votebot.Services;
 
 namespace Votebot.Commands
 {
     public class PostVote : ModuleBase<SocketCommandContext>
     {
-        public VoteController VoteController { get; set; }
+        public VoteControllerManager VoteControllerManager { get; set; }
 
         [Command("vote", RunMode = RunMode.Async), Alias("v"), Summary("Initiate a vote.")]
         public async Task Vote()
         {
             Context.Message.DeleteAsync();
 
-            if (VoteController.GetOptions().Count == 0)
+            VoteController vc = VoteControllerManager.GetVoteController(Context.Channel);
+
+            if (vc.GetOptions().Count == 0)
             {
-                VoteController.ResetOptions();
+                vc.ResetOptions();
             }
 
-            Vote vote = VoteController.NewVote();
-            foreach (string option in VoteController.GetOptions())
+            Poll vote = vc.NewPoll();
+            foreach (string option in vc.GetOptions())
             {
                 RestUserMessage message = Context.Channel.SendMessageAsync(option).Result;
                 vote.AddOptionMessage(message);
@@ -30,7 +33,7 @@ namespace Votebot.Commands
             }
 
             await Task.Delay(1000 * ResourceController.GetVoteDelay());
-            if (!VoteController.CurrentVote.IsClosed) await VoteController.CloseVote(Context);
+            if (!vc.CurrentPoll.IsClosed) await vc.ClosePoll(Context);
         }
     }
 }

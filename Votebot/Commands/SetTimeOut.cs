@@ -6,8 +6,6 @@ namespace Votebot.Commands
 {
     public class SetTimeOut : ModuleBase<SocketCommandContext>
     {
-        public VoteController VoteController { get; set; }
-
         [Command("timeout"), Summary("Set the time until votes are automatically closed in seconds.")]
         public async Task Reset(int time)
         {

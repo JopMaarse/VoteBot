@@ -4,18 +4,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Votebot.Controllers;
+using Votebot.Services;
 
 namespace Votebot.Commands
 {
     public class CloseVote : ModuleBase<SocketCommandContext>
     {
-        public VoteController VoteController { get; set; }
+        public VoteControllerManager VoteControllerManager { get; set; }
 
         [Command("close"), Alias("c"), Summary("Close the current vote early.")]
         public async Task Close()
         {
             Context.Message.DeleteAsync();
-            await VoteController.CloseVote(Context);
+            await VoteControllerManager.GetVoteController(Context.Channel).ClosePoll(Context);
         }
     }
 }

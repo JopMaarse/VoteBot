@@ -1,11 +1,14 @@
-﻿using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using Discord;
+﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using Votebot.Controllers;
+using Votebot.Services;
 
 namespace Votebot
 {
@@ -23,6 +26,7 @@ namespace Votebot
 
             client = new DiscordSocketClient(new DiscordSocketConfig
             {
+                MessageCacheSize = 42,
                 #if DEBUG
                 LogLevel = LogSeverity.Debug
                 #else
@@ -41,7 +45,7 @@ namespace Votebot
 
             services = new ServiceCollection()
                 .AddSingleton(client)
-                .AddSingleton<VoteController>()
+                .AddSingleton<VoteControllerManager>()
                 .BuildServiceProvider();
 
             commands = new CommandService(new CommandServiceConfig
@@ -56,6 +60,8 @@ namespace Votebot
             await commands.AddModulesAsync(Assembly.GetEntryAssembly(), services);
 
             client.MessageReceived += HandleCommandAsync;
+            client.ReactionAdded += ReactionAddedHandler;
+            client.ReactionRemoved += ReactionRemovedHandler;
 
             await Task.Delay(-1);
         }
@@ -70,6 +76,34 @@ namespace Votebot
 
             SocketCommandContext context = new SocketCommandContext(client, msg);
             await commands.ExecuteAsync(context, argPos, services);
+        }
+
+        private async Task ReactionAddedHandler(Cacheable<IUserMessage, ulong> message,
+            ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
+        {
+            VoteControllerManager vcm = (VoteControllerManager) services.GetService(typeof(VoteControllerManager));
+            VoteController vc = vcm.GetVoteController(socketMessageChannel);
+
+            if (vc.CurrentPoll.Options.All(m => m.Id != message.Id))
+                return;
+
+            await message.DownloadAsync();
+
+            vc.AddVote(reaction);
+        }
+
+        private async Task ReactionRemovedHandler(Cacheable<IUserMessage, ulong> message,
+            ISocketMessageChannel socketMessageChannel, SocketReaction reaction)
+        {
+            VoteControllerManager vcm = (VoteControllerManager) services.GetService(typeof(VoteControllerManager));
+            VoteController vc = vcm.GetVoteController(socketMessageChannel);
+
+            if (vc.CurrentPoll.Options.All(m => m.Id != message.Id))
+                return;
+
+            await message.DownloadAsync();
+            
+            vc.RemoveVote(reaction);
         }
     }
 }

@@ -2,5 +2,6 @@
   "Vote": {
     "delay": 120
   },
-  "Prefix" : "!" 
+  "Prefix": "!",
+  "MultipleOptions": true 
 }
