@@ -3,5 +3,6 @@
     "delay": 120
   },
   "Prefix": "!",
+  "Separator": "|", 
   "MultipleOptions": true 
 }

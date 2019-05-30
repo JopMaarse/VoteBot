@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
-using Votebot.Controllers;
+using Votebot.Models;
 using Votebot.Services;
 
 namespace Votebot.Commands
@@ -15,10 +15,7 @@ namespace Votebot.Commands
         public async Task Options([Remainder] string text)
         {
             Context.Message.DeleteAsync();
-            string[] options = text.Split('|')
-                .Select(o => o.TrimStart().TrimEnd())
-                .ToArray();
-            await Task.Run(() => VoteControllerManager.GetVoteController(Context.Channel).SetOptions(options));
+            await Task.Run(() => VoteControllerManager.GetVoteController(Context.Channel).SetOptions(text));
         }
     }
 }

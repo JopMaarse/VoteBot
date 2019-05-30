@@ -52,6 +52,14 @@ namespace Votebot.Controllers
             return json["Prefix"].ToString();
         }
 
+        public static char GetSeparator()
+        {
+            const string PATH = @"Resources/settings.json";
+            string text = File.ReadAllText(PATH);
+            JObject json = JObject.Parse(text);
+            return json["Separator"].ToString()[0];
+        }
+
         public static bool GetMultipleOptionsAllowed()
         {
             const string PATH = @"Resources/settings.json";

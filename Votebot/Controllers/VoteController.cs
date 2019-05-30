@@ -15,15 +15,17 @@ namespace Votebot.Controllers
     {
         private readonly DiscordSocketClient _client;
 
-        public IList<string> Options { get; set; }
+        public ICollection<string> Options { get; set; }
         public Dictionary<ulong, IList<SocketReaction>> UserVotes { get; set; }
         public Poll CurrentPoll { get; protected set; }
+        public bool MultipleVotesAllowed { get; set; }
 
         public VoteController(DiscordSocketClient client)
         {
             ResetOptions();
             UserVotes = new Dictionary<ulong, IList<SocketReaction>>();
             _client = client;
+            MultipleVotesAllowed = ResourceController.GetMultipleOptionsAllowed();
         }
 
         public void ResetOptions()
@@ -31,9 +33,9 @@ namespace Votebot.Controllers
             Options = ResourceController.GetDefaultOptions();
         }
 
-        public void SetOptions(params string[] options)
+        public void SetOptions(string text)
         {
-            Options = options;
+            Options = Utils.SeparateOptions(text).ToList();
         }
 
         public void SetDefaultOptions(params string[] options)
@@ -41,24 +43,25 @@ namespace Votebot.Controllers
             ResourceController.SetDefaultOptions(options);
         }
 
-        public IList<string> GetOptions()
+        public ICollection<string> GetOptions()
         {
             return Options;
         }
 
-        public bool RemoveOption(string option)
+        public bool[] RemoveOptions(params string[] options)
         {
-            return Options.Remove(option);
+            bool[] result = new bool[options.Length];
+            for(int i = 0; i < options.Length; i++)
+            {
+                result[i] = Options.Remove(options[i]);
+            }
+
+            return result;
         }
 
         public async Task ClosePoll(SocketCommandContext context)
         {
             CurrentPoll.IsClosed = true;
-
-            foreach (RestUserMessage message in CurrentPoll.Options)
-            {
-                await message.UpdateAsync();
-            }
 
             string[] winnerMessages = CalculateWinners().ToArray();
 
@@ -106,17 +109,13 @@ namespace Votebot.Controllers
 
         public void AddVote(SocketReaction reaction)
         {
-            if (CurrentPoll.MultipleVotesAllowed)
+            if (MultipleVotesAllowed)
             {
-                if (UserVotes.ContainsKey(reaction.UserId))
-                {
-                    UserVotes[reaction.UserId].Add(reaction);
-                }
-                else
+                if (!UserVotes.ContainsKey(reaction.UserId))
                 {
                     UserVotes.Add(reaction.UserId, new List<SocketReaction>());
-                    UserVotes[reaction.UserId].Add(reaction);
                 }
+                UserVotes[reaction.UserId].Add(reaction);
             }
             else
             {
@@ -124,13 +123,12 @@ namespace Votebot.Controllers
                 {
                     SocketReaction oldReaction = UserVotes[reaction.UserId].Single();
                     RemoveVote(oldReaction);
-                    UserVotes[reaction.UserId].Add(reaction);
                 }
                 else
                 {
                     UserVotes.Add(reaction.UserId, new List<SocketReaction>());
-                    UserVotes[reaction.UserId].Add(reaction);
                 }
+                UserVotes[reaction.UserId].Add(reaction);
             }
         }
 

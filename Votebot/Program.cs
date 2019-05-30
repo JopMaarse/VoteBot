@@ -3,7 +3,6 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -84,10 +83,10 @@ namespace Votebot
             VoteControllerManager vcm = (VoteControllerManager) services.GetService(typeof(VoteControllerManager));
             VoteController vc = vcm.GetVoteController(socketMessageChannel);
 
+            await message.DownloadAsync();
+
             if (vc.CurrentPoll.Options.All(m => m.Id != message.Id))
                 return;
-
-            await message.DownloadAsync();
 
             vc.AddVote(reaction);
         }
@@ -98,11 +97,11 @@ namespace Votebot
             VoteControllerManager vcm = (VoteControllerManager) services.GetService(typeof(VoteControllerManager));
             VoteController vc = vcm.GetVoteController(socketMessageChannel);
 
+            await message.DownloadAsync();
+
             if (vc.CurrentPoll.Options.All(m => m.Id != message.Id))
                 return;
 
-            await message.DownloadAsync();
-            
             vc.RemoveVote(reaction);
         }
     }

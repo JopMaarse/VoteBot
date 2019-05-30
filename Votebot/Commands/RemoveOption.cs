@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Discord.Commands;
 using Votebot.Controllers;
 using Votebot.Services;
@@ -10,13 +11,15 @@ namespace Votebot.Commands
         public VoteControllerManager VoteControllerManager { get; set; }
 
         [Command("remove"), Summary("Remove one option from the currently active Options.")]
-        public async Task Reset(string option)
+        public async Task Remove(string text)
         {
             Context.Message.DeleteAsync();
-            string message = VoteControllerManager.GetVoteController(Context.Channel).RemoveOption(option)
-                ? $"Successfully removed {option}."
-                : $"{option} is not an option.";
-            await Context.Channel.SendMessageAsync(message);
+            string[] options = Utils.SeparateOptions(text).ToArray();
+            await Context.Channel.SendMessageAsync(
+                VoteControllerManager.GetVoteController(Context.Channel)
+                    .RemoveOptions(options).All(s => s)
+                    ? $"All input removed form options."
+                    : $"One or more input values were not an option.");
         }
     }
 }
